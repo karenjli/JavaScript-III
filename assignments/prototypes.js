@@ -16,12 +16,30 @@
   * destroy() // prototype method that returns: `${this.name} was removed from the game.`
 */
 
+function GameObject (character) {
+    this.createdAt = character.createdAt;
+    this.name = character.name;
+    this.dimensions = character.dimensions;
+}
+
+GameObject.prototype.destroy = function () {
+  return `${this.name} was removed from the game.`
+}
 /*
   === CharacterStats ===
   * healthPoints
   * takeDamage() // prototype method -> returns the string '<object name> took damage.'
   * should inherit destroy() from GameObject's prototype
 */
+
+function CharacterStats (figure) {
+  GameObject.call(this, figure);  
+  this.healthPoints = figure.healthPoints;
+}
+CharacterStats.prototype = Object.create(GameObject.prototype);
+CharacterStats.prototype.takeDamage = function () {
+  return `${this.name} took damage.`
+}
 
 /*
   === Humanoid (Having an appearance or character resembling that of a human.) ===
@@ -33,6 +51,20 @@
   * should inherit takeDamage() from CharacterStats
 */
  
+
+function Humanoid (tools) {
+  CharacterStats.call(this, tools);
+    this.team = tools.team;
+    this.weapons = tools.weapons;
+    this.language = tools.language;
+}
+
+//Humanoid.prototype = Object.create(GameObject.prototype);
+Humanoid.prototype = Object.create(CharacterStats.prototype);
+Humanoid.prototype.greet = function () {
+  return `${this.name} offers a greeting in ${this.language}`;
+}
+
 /*
   * Inheritance chain: GameObject -> CharacterStats -> Humanoid
   * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
@@ -41,7 +73,7 @@
 
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
-/*
+
   const mage = new Humanoid({
     createdAt: new Date(),
     dimensions: {
@@ -102,9 +134,78 @@
   console.log(archer.greet()); // Lilith offers a greeting in Elvish.
   console.log(mage.takeDamage()); // Bruce took damage.
   console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
-*/
+
 
   // Stretch task: 
   // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
   // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
   // * Create two new objects, one a villain and one a hero and fight it out with methods!
+
+  function Villain (villain) {
+    Humanoid.call(this, villain);
+  }
+
+  Villain.prototype = Object.create (Humanoid.prototype);
+  Villain.prototype.stab = function (victim) {
+      victim.healthPoints = victim.healthPoints - 5;
+      if(victim.healthPoints <= 0) {
+        return victim.destroy();
+      }
+  };
+
+
+  
+  const ken = new Villain({
+    createdAt: new Date(),
+    dimensions: {
+      length: 1,
+      width: 2,
+      height: 4,
+    },
+    healthPoints: 10,
+    name: 'Ken',
+    team: 'Forest Kingdom',
+    weapons: [
+      'Bow',
+      'Dagger',
+    ],
+    language: 'Elvish',
+  });
+  console.log(ken.stab(mage));
+
+  
+  function Hero (hero) {
+    Humanoid.call(this, hero);
+  }
+
+  Hero.prototype = Object.create (Humanoid.prototype);
+  Hero.prototype.kamehameha = function (victim) {
+    victim.healthPoints = victim.healthPoints -10;
+    if (victim.healthPoints <= 0) {
+      return victim.destroy();
+    } else {
+      return victim.healthPoints;
+        }
+  };
+
+ 
+  const jessy = new Hero ({
+    createdAt: new Date(),
+    dimensions: {
+      length: 2,
+      width: 2,
+      height: 2,
+    },
+    healthPoints: 15,
+    name: 'Jessy',
+    team: 'The Round Table',
+    weapons: [
+      'Giant Sword',
+      'Shield',
+    ],
+    language: 'Common Tongue',
+  });
+
+  console.log(jessy.kamehameha(ken));
+  
+  
